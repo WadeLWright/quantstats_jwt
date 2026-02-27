@@ -1,5 +1,5 @@
 import pandas as pd
-import quantstats_lumi.reports as reports
+import quantstats_jwt.reports as reports
 import os
 
 # Create a returns series with a DatetimeIndex covering over a year (24 months)

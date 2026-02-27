@@ -25,4 +25,4 @@ try:
 except ImportError:
     pass
 
-from quantstats_lumi._plotting.wrappers import *
+from quantstats_jwt._plotting.wrappers import *

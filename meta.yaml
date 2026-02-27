@@ -1,4 +1,4 @@
-{% set name = "QuantStats Lumi" %}
+{% set name = "QuantStats JWT" %}
 {% set version = "1.0.1" %}
 
 package:
@@ -46,22 +46,22 @@ test:
     - quantstats._plotting
 
 about:
-  home: "https://github.com/Lumiwealth/quantstats_lumi"
+  home: "https://github.com/Just Wright Technologies/quantstats_jwt"
   license: "Apache Software"
   license_family: "APACHE"
   license_file: ""
-  summary: "QuantStats Lumi: Portfolio analytics for quants"
+  summary: "QuantStats JWT: Portfolio analytics for quants"
   description: |
-    QuantStats Lumi is a Python library that performs portfolio profiling,
+    QuantStats JWT is a Python library that performs portfolio profiling,
     allowing quants and portfolio managers to understand their
     performance better by providing them with in-depth analytics
     and risk metrics.
-    Forked and maintained by Lumiwealth BotSpot.
-  doc_url: "https://github.com/Lumiwealth/quantstats_lumi"
-  dev_url: "https://github.com/Lumiwealth/quantstats_lumi"
-  doc_source_url: "https://github.com/Lumiwealth/quantstats_lumi/blob/master/README.rst"
+    Forked and maintained by Just Wright Technologies BotSpot.
+  doc_url: "https://github.com/Just Wright Technologies/quantstats_jwt"
+  dev_url: "https://github.com/Just Wright Technologies/quantstats_jwt"
+  doc_source_url: "https://github.com/Just Wright Technologies/quantstats_jwt/blob/master/README.rst"
 
 
 extra:
   recipe-maintainers:
-    - lumiwealth-botspot
+    - jwt-botspot

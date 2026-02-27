@@ -1,6 +1,6 @@
 # Agentic Guidelines for QuantStats JWT
 
-This document outlines the operational guidelines, code style, and build commands for AI coding agents operating within the `quantstats_jwt` (fork of `quantstats_lumi`) repository. Strict adherence to these rules ensures that code quality is maintained, existing patterns are respected, and tasks are executed safely.
+This document outlines the operational guidelines, code style, and build commands for AI coding agents operating within the `quantstats_jwt` (fork of `quantstats_jwt`) repository. Strict adherence to these rules ensures that code quality is maintained, existing patterns are respected, and tasks are executed safely.
 
 ## 1. Build, Lint, and Test Commands
 
@@ -22,7 +22,7 @@ python -m pytest tests/test_stats.py
 python -m pytest tests/test_stats.py::test_specific_function_name -v
 ```
 
-*Note: If `pytest` throws import errors, ensure you are running it from the project root so the `quantstats_lumi` package is in the Python path.*
+*Note: If `pytest` throws import errors, ensure you are running it from the project root so the `quantstats_jwt` package is in the Python path.*
 
 ### 1.2 Linting & Formatting
 The project does not enforce explicit linters (like `flake8`, `black`, or `isort`) via GitHub Actions. However, agents should strictly adhere to PEP-8 standards.
@@ -45,8 +45,8 @@ This project heavily uses the **"hidden import"** pattern to keep namespaces cle
   - **Incorrect:** `import numpy as np`, `import pandas as pd`, `from math import sqrt`
 - **Internal module imports must also use underscores:**
   - **Correct:** `from . import utils as _utils`, `from . import stats as _stats`
-  - **Incorrect:** `from . import utils`, `import quantstats_lumi.stats`
-- **Why?** This ensures that end-users importing `quantstats_lumi` only see the explicitly defined functions and not internal dependencies in their IDE auto-completion.
+  - **Incorrect:** `from . import utils`, `import quantstats_jwt.stats`
+- **Why?** This ensures that end-users importing `quantstats_jwt` only see the explicitly defined functions and not internal dependencies in their IDE auto-completion.
 
 ### 2.2 Formatting & Naming Conventions
 - **Functions:** Use `snake_case` for all function names and variables (e.g., `profit_factor`, `pct_rank`).
@@ -75,10 +75,10 @@ This project heavily uses the **"hidden import"** pattern to keep namespaces cle
   ```
 
 ### 2.4 Code Organization
-- `quantstats_lumi/stats.py`: Core mathematical and financial calculations. All new metrics belong here.
-- `quantstats_lumi/reports.py`: Generation of HTML and text-based tearsheets/reports.
-- `quantstats_lumi/plots.py`: Data visualization using matplotlib/seaborn.
-- `quantstats_lumi/utils.py`: Data preparation, date conversions, and internal helpers.
+- `quantstats_jwt/stats.py`: Core mathematical and financial calculations. All new metrics belong here.
+- `quantstats_jwt/reports.py`: Generation of HTML and text-based tearsheets/reports.
+- `quantstats_jwt/plots.py`: Data visualization using matplotlib/seaborn.
+- `quantstats_jwt/utils.py`: Data preparation, date conversions, and internal helpers.
 - **Separation of Concerns:** Never place statistical calculations inside plotting functions; separate the logic. Calculate in `stats.py` and pass the prepared data to `plots.py`.
 
 ## 3. General Agent Protocol
@@ -87,7 +87,7 @@ This project heavily uses the **"hidden import"** pattern to keep namespaces cle
 - When asked to add a new metric, define it in `stats.py` and ensure you add the corresponding wrapper/helper in `utils.py` if needed.
 - Write unit tests for all new calculations using `pytest` to proactively verify your own work.
 - Use print statements or logging locally during development to debug your code before finalizing changes.
-- **Pathing:** ALWAYS construct absolute paths when performing file operations (e.g., `/home/wade/dev/quantstats_jwt/quantstats_lumi/stats.py`).
+- **Pathing:** ALWAYS construct absolute paths when performing file operations (e.g., `/home/wade/dev/quantstats_jwt/quantstats_jwt/stats.py`).
 - **Context:** Use the `read` or `grep` tools to verify existing implementations before attempting edits. DO NOT guess the arguments of internal functions like `_utils._prepare_returns()`.
 
 ### 3.2 Modifying Code

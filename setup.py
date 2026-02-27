@@ -16,7 +16,7 @@ from setuptools import find_packages, setup
 
 # --- get version ---
 version = "unknown"
-with open("quantstats_lumi/version.py") as f:
+with open("quantstats_jwt/version.py") as f:
     line = f.read().strip()
     version = line.replace("version = ", "").replace('"', "")
 # --- /get version ---
@@ -31,14 +31,14 @@ with io.open(path.join(here, "requirements.txt"), encoding="utf-8") as f:
     requirements = [line.rstrip() for line in f]
 
 setup(
-    name="quantstats-lumi",
+    name="quantstats_jwt",
     version=version,
     description="Portfolio analytics for quants",
     long_description=long_description,
     long_description_content_type="text/markdown",  # Changed from text/x-rst
-    url="https://github.com/Lumiwealth/quantstats_lumi",
-    author="Robert Grzesik (Lumiwealth)",
-    author_email="rob@lumiwealth.com",
+    url="https://github.com/Just Wright Technologies/quantstats_jwt",
+    author="Robert Grzesik (Just Wright Technologies)",
+    author_email="rob@jwt.com",
     license="Apache Software License",
     python_requires='>=3.6',
     classifiers=[
@@ -77,6 +77,6 @@ setup(
     },
     include_package_data=True,
     package_data={
-        "quantstats_lumi": ["report.html"],
+        "quantstats_jwt": ["report.html"],
     },
 )
