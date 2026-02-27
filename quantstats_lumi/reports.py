@@ -27,13 +27,13 @@ from math import sqrt as _sqrt
 
 import numpy as _np
 import pandas as _pd
-from dateutil.relativedelta import relativedelta
-from tabulate import tabulate as _tabulate
 
-from . import __version__
+# from . import __version__
 from . import plots as _plots
 from . import stats as _stats
 from . import utils as _utils
+from dateutil.relativedelta import relativedelta
+from tabulate import tabulate as _tabulate
 
 try:
     from IPython.display import HTML as iHTML
@@ -52,24 +52,13 @@ def _get_trading_periods(periods_per_year=365):
 def _match_dates(returns, benchmark):
     """match dates of returns and benchmark"""
     fix_instance = lambda x: x[x.columns[0]] if isinstance(x, _pd.DataFrame) else x
-    loc = max(fix_instance(returns).ne(0).idxmax(), fix_instance(benchmark).ne(0).idxmax())
+    loc = max(
+        fix_instance(returns).ne(0).idxmax(), fix_instance(benchmark).ne(0).idxmax()
+    )
     returns = returns.loc[loc:]
     benchmark = benchmark.loc[loc:]
 
     return returns, benchmark
-
-
-def _format_duration_seconds(seconds) -> str:
-    try:
-        seconds_int = max(0, int(round(float(seconds))))
-    except Exception:
-        return "unknown"
-
-    hours, remainder = divmod(seconds_int, 3600)
-    minutes, seconds = divmod(remainder, 60)
-    if hours:
-        return f"{hours:d}:{minutes:02d}:{seconds:02d}"
-    return f"{minutes:d}:{seconds:02d}"
 
 
 def html(
@@ -88,11 +77,6 @@ def html(
     parameters: dict = None,
     log_scale: bool = False,
     show_match_volatility: bool = True,
-    show_log_returns=None,
-    lumibot_version=None,
-    backtesting_data_source=None,
-    backtesting_data_sources=None,
-    backtest_time_seconds=None,
     **kwargs,
 ):
     """
@@ -126,14 +110,6 @@ def html(
         Match dates of returns and benchmark, default is True
     parameters : dict, optional
         Strategy parameters
-    lumibot_version : str, optional
-        Optional metadata shown in the report header.
-    backtesting_data_source : str, optional
-        Optional metadata shown in the report header.
-    backtesting_data_sources : str, optional
-        Optional metadata shown in the report header.
-    backtest_time_seconds : float, optional
-        Optional metadata shown in the report header (elapsed seconds).
 
     Returns
     -------
@@ -149,7 +125,7 @@ def html(
     win_year, win_half_year = _get_trading_periods(periods_per_year)
 
     tpl = ""
-    with open(template_path or __file__[:-4] + ".html", encoding='utf-8') as f:
+    with open(template_path or __file__[:-4] + ".html") as f:
         tpl = f.read()
         f.close()
 
@@ -176,36 +152,8 @@ def html(
             elif isinstance(benchmark, _pd.DataFrame):
                 benchmark_title = benchmark[benchmark.columns[0]].name
 
-        meta_parts = []
-
-        if lumibot_version is None:
-            lumibot_version = kwargs.get("lumibot_version")
-        if lumibot_version:
-            meta_parts.append(f"LumiBot {lumibot_version}")
-
-        if backtesting_data_sources is None and backtesting_data_source is None:
-            backtesting_data_sources = kwargs.get("backtesting_data_sources")
-            backtesting_data_source = kwargs.get("backtesting_data_source")
-        backtesting_data_sources = backtesting_data_sources or backtesting_data_source
-        if backtesting_data_sources:
-            meta_parts.append(f"DataSource {backtesting_data_sources}")
-
-        if backtest_time_seconds is None:
-            backtest_time_seconds = kwargs.get("backtest_time_seconds")
-        if backtest_time_seconds is not None:
-            try:
-                meta_parts.append(
-                    f"Backtest time {_format_duration_seconds(backtest_time_seconds)}"
-                )
-            except Exception:
-                pass
-
-        meta_text = ""
-        if meta_parts:
-            meta_text = " | " + " | ".join(meta_parts)
-
         tpl = tpl.replace(
-            "{{benchmark_title}}", f"Benchmark is {benchmark_title.upper()}{meta_text} | "
+            "{{benchmark_title}}", f"Benchmark is {benchmark_title.upper()} | "
         )
         benchmark = _utils._prepare_benchmark(benchmark, returns.index, rf)
         if match_dates is True:
@@ -232,9 +180,11 @@ def html(
             sum_abs_returns = returns.abs().sum()
         elif isinstance(returns, _pd.DataFrame):
             # Assuming returns DataFrame columns are numeric after _prepare_returns
-            sum_abs_returns = returns.select_dtypes(include=[_np.number]).abs().sum().sum()
-        
-        if abs(sum_abs_returns) < 1e-9: # Using a small epsilon for float comparison
+            sum_abs_returns = (
+                returns.select_dtypes(include=[_np.number]).abs().sum().sum()
+            )
+
+        if abs(sum_abs_returns) < 1e-9:  # Using a small epsilon for float comparison
             no_trades_occurred = True
 
     no_trades_html_message = ""
@@ -244,7 +194,7 @@ def html(
     date_range = returns.index.strftime("%e %b, %Y")
     tpl = tpl.replace("{{date_range}}", date_range[0] + " - " + date_range[-1])
     tpl = tpl.replace("{{title}}", title)
-    tpl = tpl.replace("{{v}}", __version__)
+    # tpl = tpl.replace("{{v}}", __version__)
 
     if benchmark is not None:
         benchmark.name = benchmark_title
@@ -270,7 +220,7 @@ def html(
 
     mtrx.index.name = "Metric"
     # tpl = tpl.replace("{{metrics}}", _html_table(mtrx)) # Original line
-    
+
     # Modified replacement for metrics table
     metrics_table_html = _html_table(mtrx)
     # The "no trades" message is no longer prepended here.
@@ -332,7 +282,6 @@ def html(
     else:
         sortino_str = str(sortino_value)
     tpl = tpl.replace("{{sortino}}", sortino_str)
-
 
     if isinstance(returns, _pd.DataFrame):
         num_cols = len(returns.columns)
@@ -409,17 +358,12 @@ def html(
         tpl = tpl.replace("{{dd_info}}", dd_html_table)
 
     active = kwargs.get("active_returns", False)
-
-    # Backwards-compatible switch:
-    # - Historically the second chart was "Volatility Matched" (match_volatility=True).
-    # - We now prefer a log-scale cumulative chart instead (more interpretable).
-    # - If the caller does not specify show_log_returns, inherit the old flag so existing
-    #   calls still get a second chart by default.
-    if show_log_returns is None:
-        show_log_returns = show_match_volatility
+    # plots
+    plot_returns = _plots.log_returns if log_scale else _plots.returns
+    placeholder_returns = "{{log_returns}}" if log_scale else "{{returns}}"
 
     figfile = _utils._file_stream()
-    _plots.returns(
+    plot_returns(
         returns,
         benchmark,
         grayscale=grayscale,
@@ -431,21 +375,22 @@ def html(
         cumulative=compounded,
         prepare_returns=False,
     )
-    first_plot_html = _embed_figure(figfile, figfmt) # Get the HTML for the first plot
+    first_plot_html = _embed_figure(figfile, figfmt)  # Get the HTML for the first plot
 
-    # Prepend the no_trades_html_message if no trades occurred, then add the plot.
-    tpl = tpl.replace(
-        "{{returns}}",
-        (no_trades_html_message + first_plot_html) if no_trades_occurred else first_plot_html,
-        1,
-    )
+    # Prepend the no_trades_html_message if no trades occurred, then add the plot
+    if no_trades_occurred:
+        tpl = tpl.replace(
+            placeholder_returns, no_trades_html_message + first_plot_html, 1
+        )
+    else:
+        tpl = tpl.replace(placeholder_returns, first_plot_html, 1)
 
-    # Replace the legacy "Volatility Matched" chart with a log-scale cumulative chart.
-    if show_log_returns:
+    if benchmark is not None and show_match_volatility:
         figfile = _utils._file_stream()
-        _plots.log_returns(
+        plot_returns(
             returns,
             benchmark,
+            match_volatility=True,
             grayscale=grayscale,
             figsize=(8, 5),
             subtitle=False,
@@ -455,19 +400,14 @@ def html(
             cumulative=compounded,
             prepare_returns=False,
         )
-        tpl = tpl.replace("{{log_returns}}", _embed_figure(figfile, figfmt))
-    else:
-        tpl = tpl.replace("{{log_returns}}", "")
-
-    # Ensure the removed legacy placeholder does not leak into HTML if present in a custom template.
-    tpl = tpl.replace("{{vol_returns}}", "")
+        tpl = tpl.replace("{{vol_returns}}", _embed_figure(figfile, figfmt))
 
     figfile = _utils._file_stream()
     _plots.yearly_returns(
         returns,
         benchmark,
         grayscale=grayscale,
-        figsize=(8, 4),
+        figsize=(8, 5),
         subtitle=False,
         savefig={"fname": figfile, "format": figfmt},
         show=False,
@@ -482,7 +422,7 @@ def html(
         returns,
         benchmark,
         grayscale=grayscale,
-        figsize=(7, 4),
+        figsize=(8, 5),
         subtitle=False,
         savefig={"fname": figfile, "format": figfmt},
         show=False,
@@ -497,7 +437,7 @@ def html(
         returns,
         benchmark,
         grayscale=grayscale,
-        figsize=(8, 3),
+        figsize=(8, 5),
         subtitle=False,
         savefig={"fname": figfile, "format": figfmt},
         show=False,
@@ -513,7 +453,7 @@ def html(
             returns,
             benchmark,
             grayscale=grayscale,
-            figsize=(8, 3),
+            figsize=(8, 5),
             subtitle=False,
             window1=win_half_year,
             window2=win_year,
@@ -529,7 +469,7 @@ def html(
         returns,
         benchmark,
         grayscale=grayscale,
-        figsize=(8, 3),
+        figsize=(8, 5),
         subtitle=False,
         savefig={"fname": figfile, "format": figfmt},
         show=False,
@@ -543,7 +483,7 @@ def html(
     _plots.rolling_sharpe(
         returns,
         grayscale=grayscale,
-        figsize=(8, 3),
+        figsize=(8, 5),
         subtitle=False,
         savefig={"fname": figfile, "format": figfmt},
         show=False,
@@ -557,7 +497,7 @@ def html(
     _plots.rolling_sortino(
         returns,
         grayscale=grayscale,
-        figsize=(8, 3),
+        figsize=(8, 5),
         subtitle=False,
         savefig={"fname": figfile, "format": figfmt},
         show=False,
@@ -572,7 +512,7 @@ def html(
         _plots.drawdowns_periods(
             returns,
             grayscale=grayscale,
-            figsize=(8, 4),
+            figsize=(8, 5),
             subtitle=False,
             title=returns.name,
             savefig={"fname": figfile, "format": figfmt},
@@ -589,7 +529,7 @@ def html(
             _plots.drawdowns_periods(
                 returns[col],
                 grayscale=grayscale,
-                figsize=(8, 4),
+                figsize=(8, 5),
                 subtitle=False,
                 title=col,
                 savefig={"fname": figfile, "format": figfmt},
@@ -605,7 +545,7 @@ def html(
     _plots.drawdown(
         returns,
         grayscale=grayscale,
-        figsize=(8, 3),
+        figsize=(8, 5),
         subtitle=False,
         savefig={"fname": figfile, "format": figfmt},
         show=False,
@@ -619,7 +559,7 @@ def html(
             returns,
             benchmark,
             grayscale=grayscale,
-            figsize=(8, 4),
+            figsize=(8, 5),
             cbar=False,
             returns_label=returns.name,
             savefig={"fname": figfile, "format": figfmt},
@@ -636,7 +576,7 @@ def html(
                 returns[col],
                 benchmark,
                 grayscale=grayscale,
-                figsize=(8, 4),
+                figsize=(8, 5),
                 cbar=False,
                 returns_label=col,
                 savefig={"fname": figfile, "format": figfmt},
@@ -654,7 +594,7 @@ def html(
         _plots.distribution(
             returns,
             grayscale=grayscale,
-            figsize=(8, 4),
+            figsize=(8, 5),
             subtitle=False,
             title=returns.name,
             savefig={"fname": figfile, "format": figfmt},
@@ -670,7 +610,7 @@ def html(
             _plots.distribution(
                 returns[col],
                 grayscale=grayscale,
-                figsize=(8, 4),
+                figsize=(8, 5),
                 subtitle=False,
                 title=col,
                 savefig={"fname": figfile, "format": figfmt},
@@ -852,6 +792,7 @@ def full(
         active=active,
     )
 
+
 def basic(
     returns,
     benchmark=None,
@@ -934,6 +875,7 @@ def basic(
         active=active,
     )
 
+
 def parameters_section(parameters):
     """returns a formatted section for strategy parameters"""
     if parameters is None:
@@ -941,8 +883,7 @@ def parameters_section(parameters):
 
     tpl = """
     <div id="params">
-        <h3>Parameters Used</h3>
-        <table style="width:100%; font-size: 12px">
+        <table>
     """
 
     # Add titles to the table
@@ -960,6 +901,7 @@ def parameters_section(parameters):
     """
 
     return tpl
+
 
 def metrics(
     returns,
@@ -1065,25 +1007,62 @@ def metrics(
     metrics = _pd.DataFrame()
     metrics["Start Period"] = _pd.Series(s_start)
     metrics["End Period"] = _pd.Series(s_end)
-    metrics["Risk-Free Rate % "] = _pd.Series(s_rf) * 100
-    metrics["Time in Market % "] = _stats.exposure(df, prepare_returns=False) * pct
-
-    metrics["~"] = blank
-
+    metrics["Time in Market % "] = _stats.exposure(df, prepare_returns=False) * pct  # type: ignore
+    # metrics["Risk-Free Rate % "] = _pd.Series(s_rf) * 100
+    # metrics["~"] = blank
     if compounded:
-        metrics["Total Return"] = (_stats.comp(df) * pct).map("{:,.0f}%".format)  # No decimals for readability as it is a large number
+        metrics["Total Return"] = (_stats.comp(df) * pct).map(
+            "{:,.0f}%".format
+        )  # No decimals for readability as it is a large number
     else:
         metrics["Total Return"] = (df.sum() * pct).map("{:,.2f}%".format)
 
     metrics["CAGR% (Annual Return) "] = _stats.cagr(df, rf, compounded, win_year) * pct
 
-    metrics["~~~~~~~~~~~~~~"] = blank
+    # best/worst
+    if mode.lower() == "full":
+        metrics["~~~"] = blank
+        metrics["Best Year %"] = (
+            _stats.best(
+                df, compounded=compounded, aggregate="YE", prepare_returns=False
+            )
+            * pct
+        )
+        metrics["Worst Year %"] = (
+            _stats.worst(
+                df, compounded=compounded, aggregate="YE", prepare_returns=False
+            )
+            * pct
+        )
+        metrics["Best Month %"] = (
+            _stats.best(
+                df, compounded=compounded, aggregate="ME", prepare_returns=False
+            )
+            * pct
+        )
+        metrics["Worst Month %"] = (
+            _stats.worst(df, aggregate="ME", prepare_returns=False) * pct
+        )
+        metrics["Best Day %"] = (
+            _stats.best(df, compounded=compounded, prepare_returns=False) * pct
+        )
+        metrics["Worst Day %"] = _stats.worst(df, prepare_returns=False) * pct
 
+    # drawdown
+    metrics["~~~~~~~~"] = blank
+    metrics["Max Drawdown %"] = blank
+    metrics["Longest DD Days"] = blank
+    for ix, row in dd.iterrows():
+        metrics[ix] = row
+
+    metrics["~~~~~~~~~~~~~~"] = blank
     metrics["Sharpe"] = _stats.sharpe(df, rf, win_year, True)
     metrics["RoMaD"] = _stats.romad(df, win_year, True)
 
     if benchmark is not None:
-        metrics["Corr to Benchmark "] = _stats.benchmark_correlation(df, benchmark, True)
+        metrics["Corr to Benchmark "] = _stats.benchmark_correlation(
+            df, benchmark, True
+        )
     metrics["Prob. Sharpe Ratio %"] = (
         _stats.probabilistic_sharpe_ratio(df, rf, win_year, False) * pct
     )
@@ -1100,8 +1079,6 @@ def metrics(
     metrics["Omega"] = _stats.omega(df, rf, 0.0, win_year)
 
     metrics["~~~~~~~~"] = blank
-    metrics["Max Drawdown %"] = blank
-    metrics["Longest DD Days"] = blank
 
     if mode.lower() == "full":
         if isinstance(returns, _pd.Series):
@@ -1226,39 +1203,8 @@ def metrics(
 
     metrics["All-time (ann.) %"] = _stats.cagr(df, 0.0, compounded, win_year) * pct
 
-    # best/worst
-    if mode.lower() == "full":
-        metrics["~~~"] = blank
-        metrics["Best Day %"] = (
-            _stats.best(df, compounded=compounded, prepare_returns=False) * pct
-        )
-        metrics["Worst Day %"] = _stats.worst(df, prepare_returns=False) * pct
-        metrics["Best Month %"] = (
-            _stats.best(
-                df, compounded=compounded, aggregate="ME", prepare_returns=False
-            )
-            * pct
-        )
-        metrics["Worst Month %"] = (
-            _stats.worst(df, aggregate="ME", prepare_returns=False) * pct
-        )
-        metrics["Best Year %"] = (
-            _stats.best(
-                df, compounded=compounded, aggregate="YE", prepare_returns=False
-            )
-            * pct
-        )
-        metrics["Worst Year %"] = (
-            _stats.worst(
-                df, compounded=compounded, aggregate="YE", prepare_returns=False
-            )
-            * pct
-        )
-
     # dd
     metrics["~~~~"] = blank
-    for ix, row in dd.iterrows():
-        metrics[ix] = row
     metrics["Recovery Factor"] = _stats.recovery_factor(df)
     metrics["Ulcer Index"] = _stats.ulcer_index(df)
     metrics["Serenity Index"] = _stats.serenity_index(df, rf)
