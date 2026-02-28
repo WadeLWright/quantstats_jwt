@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-"""QuantStats: Portfolio analytics for quants
-https://github.com/ranaroussi/quantstats
-QuantStats performs portfolio profiling, to allow quants and
-portfolio managers to understand their performance better,
-by providing them with in-depth analytics and risk metrics.
-"""
 
 # from codecs import open
 import io
@@ -24,7 +18,9 @@ with open("quantstats_jwt/version.py") as f:
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with io.open(path.join(here, "README.md"), encoding="utf-8") as f:  # Changed from README.rst
+with io.open(
+    path.join(here, "README.md"), encoding="utf-8"
+) as f:  # Changed from README.rst
     long_description = f.read()
 
 with io.open(path.join(here, "requirements.txt"), encoding="utf-8") as f:
@@ -37,10 +33,10 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",  # Changed from text/x-rst
     url="https://github.com/Just Wright Technologies/quantstats_jwt",
-    author="Robert Grzesik (Just Wright Technologies)",
-    author_email="rob@jwt.com",
+    author="Wade Wright (Just Wright Technologies)",
+    author_email="wade@justwright.io",
     license="Apache Software License",
-    python_requires='>=3.6',
+    python_requires=">=3.6",
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         # 'Development Status :: 1 - Planning',
