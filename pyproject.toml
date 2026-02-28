@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "quantstats-jwt"
+dynamic = ["version"]
+description = "Portfolio analytics for quants"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache Software License" }
+authors = [
+    { name = "Wade Wright (Just Wright Technologies)", email = "wade@justwright.io" }
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "Intended Audience :: Science/Research",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Office/Business :: Financial :: Investment",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+keywords = [
+    "quant", "algotrading", "algorithmic-trading", "quantitative-trading",
+    "quantitative-analysis", "algo-trading", "visualization", "plotting"
+]
+dependencies = [
+    "pandas>=2.2.0",
+    "numpy>=1.26.4",
+    "seaborn>=0.13.2",
+    "matplotlib>=3.0.0",
+    "scipy>=1.2.0",
+    "tabulate>=0.8.0",
+    "yfinance>=0.2.36",
+    "python-dateutil>=2.0",
+    "ipython>=8.22.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[project.scripts]
+sample = "sample:main"
+
+[tool.hatch.version]
+path = "quantstats_jwt/version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["quantstats_jwt"]
+include = [
+    "quantstats_jwt/report.html",
+]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/quantstats_jwt",
+    "/README.md",
+    "/LICENSE.txt",
+    "/MANIFEST.in",
+]
+
+[tool.uv]
+package = true
