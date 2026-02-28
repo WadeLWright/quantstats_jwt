@@ -1,4 +1,4 @@
-# Fork of [ QuantStats by Ran Aroussi, Maintained by Just Wright Technologies BotSpot](https://github.com/Just Wright Technologies/quantstats_jwt)
+# Fork of [ QuantStats by Ran Aroussi, Maintained by Just Wright Technologies](https://github.com/WadeLWright/quantstats_jwt)
 
 ### QuantStats_JWT is comprised of 3 main modules:
 

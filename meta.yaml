@@ -46,7 +46,7 @@ test:
     - quantstats._plotting
 
 about:
-  home: "https://github.com/Just Wright Technologies/quantstats_jwt"
+  home: "https://github.com/WadeLWright/quantstats_jwt"
   license: "Apache Software"
   license_family: "APACHE"
   license_file: ""
@@ -57,9 +57,9 @@ about:
     performance better by providing them with in-depth analytics
     and risk metrics.
     Forked and maintained by Just Wright Technologies BotSpot.
-  doc_url: "https://github.com/Just Wright Technologies/quantstats_jwt"
-  dev_url: "https://github.com/Just Wright Technologies/quantstats_jwt"
-  doc_source_url: "https://github.com/Just Wright Technologies/quantstats_jwt/blob/master/README.rst"
+  doc_url: "https://github.com/WadeLWright/quantstats_jwt"
+  dev_url: "https://github.com/WadeLWright/quantstats_jwt"
+  doc_source_url: "https://github.com/WadeLWright/quantstats_jwt/blob/master/README.rst"
 
 
 extra:

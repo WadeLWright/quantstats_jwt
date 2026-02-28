@@ -32,7 +32,7 @@ setup(
     description="Portfolio analytics for quants",
     long_description=long_description,
     long_description_content_type="text/markdown",  # Changed from text/x-rst
-    url="https://github.com/Just Wright Technologies/quantstats_jwt",
+    url="https://github.com/WadeLWright/quantstats_jwt",
     author="Wade Wright (Just Wright Technologies)",
     author_email="wade@justwright.io",
     license="Apache Software License",
